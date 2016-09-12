@@ -4,5 +4,4 @@ IF EXIST "%DEPLOYMENT_TARGET%\package.json" (
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
 )
-
 call :ExecuteCmd !NPM_CMD! run build
