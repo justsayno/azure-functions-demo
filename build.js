@@ -8,34 +8,34 @@ if (!which('npm')) {
 npm.load(myConfigObject, function (er) {
   if (er) return handlError(er)
   npm.commands.install([], function (er, data) {
-    if (er) return commandFailed(er)
-    // command succeeded, and data might have some info
+  if (er) throw 'Failed to install packages'
+
+  require('shelljs/global');
+  const fs = require('fs');
+  const path = require('path');
+  const scriptDirectory = __dirname
+
+  const installPackagesInDirectory = (directoryPath, scriptDirectory) => {
+      if (fs.existsSync(`./${directoryPath}/package.json`)) { 
+          cd(`./${directoryPath}`)
+          exec('npm install')
+          cd(scriptDirectory)
+      }
+  }
+
+  getDirectories = (directoryPath) => {
+    return fs.readdirSync(directoryPath).filter(function(file) {
+      return fs.statSync(path.join(directoryPath, file)).isDirectory()
+    });
+  }
+
+  const directories = getDirectories(scriptDirectory)
+
+  installPackagesInDirectory(scriptDirectory)
+
+  directories.map((directory) => {
+      installPackagesInDirectory(directory, scriptDirectory)
+  })
   })
 })
 
-require('shelljs/global');
-const fs = require('fs');
-const path = require('path');
-const scriptDirectory = __dirname
-
-const installPackagesInDirectory = (directoryPath, scriptDirectory) => {
-    if (fs.existsSync(`./${directoryPath}/package.json`)) { 
-        cd(`./${directoryPath}`)
-        exec('npm install')
-        cd(scriptDirectory)
-    }
-}
-
-getDirectories = (directoryPath) => {
-  return fs.readdirSync(directoryPath).filter(function(file) {
-    return fs.statSync(path.join(directoryPath, file)).isDirectory()
-  });
-}
-
-const directories = getDirectories(scriptDirectory)
-
-installPackagesInDirectory(scriptDirectory)
-
-directories.map((directory) => {
-    installPackagesInDirectory(directory, scriptDirectory)
-})
