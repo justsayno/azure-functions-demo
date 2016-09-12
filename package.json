@@ -1,0 +1,19 @@
+{
+  "name": "azure-functions",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justsayno/azure-functions-demo.git"
+  },
+  "author": "Seth Reid",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/justsayno/azure-functions-demo/issues"
+  },
+  "homepage": "https://github.com/justsayno/azure-functions-demo#readme"
+}
