@@ -37,11 +37,11 @@ const initializeEnvironment = () =>{
     const storageAccountName = getStorageAccountName()
     const storageAccountKey =  getStorageAccountKey()
     const sendgridApiKey = getSendgridApiKey()
-    if(!tableService){
-        tableService = azureStorage.createTableService(storageAccountName,storageAccountKey)
-    }
     if(!queueSerivce){
         queueSerivce = azureStorage.createQueueService(storageAccountName, storageAccountKey)
+    }
+    if(!tableService){
+        tableService = azureStorage.createTableService(storageAccountName,storageAccountKey)
     }
     if(!blobService){
         blobService = azureStorage.createBlobService(storageAccountName, storageAccountKey)
@@ -51,26 +51,55 @@ const initializeEnvironment = () =>{
     }
 }
 
-const sendEmail = (url, dest) => {
+/*
+* Queues
+*/
+const createQueue = (queueName, context) => {
     return new Promise((resolve, reject) => {
-        initializeEnvironment()
-        var from_email = new helper.Email('contact@sethreid.co.nz');
-        var to_email = new helper.Email('contact@sethreid.co.nz');
-        var subject = 'New Checkpoint podcast!';
-        var content = new helper.Content('text/plain', `Hello, There is a new Checkpoint podcast that you can find here: ${url}!`);
-        var mail = new helper.Mail(from_email, subject, to_email, content);
-
-        var request = sendgrid.emptyRequest({
-            method: 'POST',
-            path: '/v3/mail/send',
-            body: mail.toJSON(),
-        });
-        sendgrid.API(request, function(error, response) {
-            resolve(response)
-        });
-    });
+        context.log(`Creating queue '${queueName}'`)
+        initializeEnvironment() 
+        queueSerivce.createQueueIfNotExists(queueName, (error, result, response) =>{
+            if (!error) {
+                context.log(`Created queue '${queueName}'`)
+                resolve(result)
+            }
+            else{
+                context.log(error)
+                reject(error)
+            }
+        })
+    })
 }
 
+const createQueues = (queueNames, context) => {
+    context.log(`Creating queues '${queueNames}'`)
+    const queuePromises = []
+    queueNames.map((queueName) => {
+        queuePromises.push(createQueue(queueName, context))
+    })
+    return Promise.all(queuePromises)
+}
+
+const addItemToQueue = (item, queueName, context) => {
+    return new Promise((resolve, reject) => {
+        context.log(`Creating queue item '${item}'' '${queueName}'`)
+        initializeEnvironment()
+        const serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
+        queueSerivce.createMessage(queueName, serializedMessage, (error, result, response) => {
+            if(!error){
+                context.log(`Created queue item '${item}'' '${queueName}'`)
+                resolve(result)
+            }else{
+                context.log(error)
+                reject(error)
+            }
+        })
+    })
+}
+
+/*
+* Blob Tables
+*/
 const createBlobTable = (tableName, context) => {
     return new Promise((resolve, reject) => {
         context.log(`Begin creating blob if doesn't exist '${tableName}'`)
@@ -140,24 +169,11 @@ const updatePodcastEntity = (entity, tableName, context) => {
     })
 }
 
-const createQueue = (queueName, storageAccountName, storageAccountKey, context) => {
-    return new Promise((resolve, reject) => {
-        context.log(`Creating queue '${queueName}'`)
-        initializeEnvironment() 
-        queueSerivce.createQueueIfNotExists(queueName, (error, result, response) =>{
-            if (!error) {
-                context.log(`Created queue '${queueName}'`)
-                resolve(result)
-            }
-            else{
-                context.log(error)
-                reject(error)
-            }
-        })
-    })
-}
 
-const createStorageContainer = (containerName, storageAccountName, storageAccountKey, context) => {
+/*
+* Blob Storage
+*/
+const createStorageContainer = (containerName, context) => {
     return new Promise((resolve, reject) => {
         initializeEnvironment() 
         blobService.createContainerIfNotExists(containerName, function(error, result, response){
@@ -173,7 +189,7 @@ const createStorageContainer = (containerName, storageAccountName, storageAccoun
     })
 }
 
-const createBlob = (filePath, blobName, containerName, storageAccountName, storageAccountKey, context) => {
+const createBlob = (filePath, blobName, containerName, context) => {
     return new Promise((resolve, reject) => {
         const stream = sbuff(buffer)
         blobService.createBlockBlobFromFile(containerName, blobName, filePath, function(error, result, response){
@@ -189,43 +205,43 @@ const createBlob = (filePath, blobName, containerName, storageAccountName, stora
     })
 }
 
-const createQueues = (queueNames, storageAccountName, storageAccountKey) => {
-    context.log(`Creating queues '${queueNames}'`)
-    const queuePromises = []
-    queueNames.map((queueName) => {
-        queuePromises.push(createQueue(queueName, storageAccountName, storageAccountKey))
-    })
-    return Promise.all(queuePromises)
-}
 
-const addItemToQueue = (item, queueName, storageAccountName, storageAccountKey, context) => {
+/*
+* Email
+*/
+const sendEmail = (url, dest) => {
     return new Promise((resolve, reject) => {
-        context.log(`Creating queue item '${item}'' '${queueName}'`)
         initializeEnvironment()
-        const serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
-        queueSerivce.createMessage(queueName, serializedMessage, (error, result, response) => {
-            if(!error){
-                context.log(`Created queue item '${item}'' '${queueName}'`)
-                resolve(result)
-            }else{
-                context.log(error)
-                reject(error)
-            }
-        })
-    })
+        var from_email = new helper.Email('contact@sethreid.co.nz');
+        var to_email = new helper.Email('contact@sethreid.co.nz');
+        var subject = 'New Checkpoint podcast!';
+        var content = new helper.Content('text/plain', `Hello, There is a new Checkpoint podcast that you can find here: ${url}!`);
+        var mail = new helper.Mail(from_email, subject, to_email, content);
+
+        var request = sendgrid.emptyRequest({
+            method: 'POST',
+            path: '/v3/mail/send',
+            body: mail.toJSON(),
+        });
+        sendgrid.API(request, function(error, response) {
+            resolve(response)
+        });
+    });
 }
 
 module.exports = {
+    //queues
     createQueues,
     createQueue,
+    addItemToQueue,
+    //blob tables
     createBlobTable,
     queryTable,
     insertPodcastEntity,
-    addItemToQueue,
-    getStorageAccountName,
-    getStorageAccountKey,
+    updatePodcastEntity,
+    //storage containers
     createStorageContainer,
     createBlob,
-    sendEmail,
-    updatePodcastEntity
+    //email
+    sendEmail
 }
