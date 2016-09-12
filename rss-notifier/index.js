@@ -1,5 +1,4 @@
 const azureStorage = require('azure-storage')
-const fetch = require('node-fetch')
 
 const { 
     createBlobTable, 

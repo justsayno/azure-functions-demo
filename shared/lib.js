@@ -72,11 +72,11 @@ const sendEmail = (url, dest) => {
 
 const createBlobTable = (tableName, storageAccountName, storageAccountKey, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`Creating blob table '${tableName}'`)
+        context.log(`Begin creating blob if doesn't exist '${tableName}'`)
         initializeEnvironment()
         tableService.createTableIfNotExists(tableName, (error, result, response) => {
             if (!error) {
-                context.log(`Azure blob table creates '${tableName}'`)
+                context.log(`Finsihed creating blob if doesn't exist'${tableName}'`)
                 resolve()
             }
             else{
