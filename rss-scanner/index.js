@@ -26,6 +26,13 @@ const getRssItems = (context) => {
     })
 }
 
+const getLatestRssItemsFromArray = (rssItems, totalCount) => {
+    rssItems.sort((a, b) => {
+        return new Date(b.published) - new Date(a.published)
+    })
+    return rssItems.slice(0, totalCount)
+}
+
 const main = (context) => {
     if(context == null) context = {log: (message) => { console.log(message)}}
     return createQueue(PROCESS_PODCAST_QUEUE_NAME, getStorageAccountName(), getStorageAccountKey(), context)
@@ -33,11 +40,14 @@ const main = (context) => {
       return getRssItems(context)
     })
     .then((rssItems) => {
-        const queuePromises = rssItems.map((item) => {
+        const latestRssItems = getLatestRssItemsFromArray(rssItems, 5)
+        const queuePromises = latestRssItems.map((item) => {
             const urlObject = url.parse(item.link)
             const audioId = urlObject.path.slice(32 + 'audio/'.length, urlObject.path.lastIndexOf('/'))
             item.audioId = audioId
-            return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
+            if(count <= 5){
+                return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
+            }
         })
         return Promise.all(queuePromises)       
     })
