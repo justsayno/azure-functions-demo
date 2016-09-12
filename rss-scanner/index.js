@@ -22,7 +22,7 @@ const getRssItems = () => {
     })
 }
 
-const main = () => {
+const main = (context) => {
     return createQueue(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey())
     .then(getRssItems)
     .then((rssItems) => {
