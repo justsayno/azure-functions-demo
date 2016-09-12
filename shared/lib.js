@@ -36,6 +36,7 @@ const getSendgridApiKey = () =>{
 const initializeEnvironment = () =>{
     const storageAccountName = getStorageAccountName()
     const storageAccountKey =  getStorageAccountKey()
+    const sendgridApiKey = getSendgridApiKey()
     if(!tableService){
         tableService = azureStorage.createTableService(storageAccountName,storageAccountKey)
     }
@@ -46,7 +47,7 @@ const initializeEnvironment = () =>{
         blobService = azureStorage.createBlobService(storageAccountName, storageAccountKey)
     }
     if(!sendgrid){
-        sendgrid = require('sendgrid')(getSendgridApiKey());
+        sendgrid = require('sendgrid')(sendgridApiKey);
     }
 }
 
@@ -70,7 +71,7 @@ const sendEmail = (url, dest) => {
     });
 }
 
-const createBlobTable = (tableName, storageAccountName, storageAccountKey, context) => {
+const createBlobTable = (tableName, context) => {
     return new Promise((resolve, reject) => {
         context.log(`Begin creating blob if doesn't exist '${tableName}'`)
         initializeEnvironment()
@@ -86,8 +87,9 @@ const createBlobTable = (tableName, storageAccountName, storageAccountKey, conte
     })
 }
 
-const queryTable = (query, tableName, storageAccountName, storageAccountKey) => {
+const queryTable = (query, tableName, context) => {
     return new Promise((resolve, reject) => {
+        context.log(`queries table. Query: ${query} Table: '${tableName}'`)
         initializeEnvironment()
         tableService.queryEntities(tableName, query, null, function(error, result, response) {
             if (!error) {

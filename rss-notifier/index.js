@@ -2,13 +2,8 @@ const azureStorage = require('azure-storage')
 
 const { 
     createBlobTable, 
-    createQueue, 
-    addItemToQueue,
-    getStorageAccountName,
-    getStorageAccountKey,
     queryTable,
     updatePodcastEntity,
-    createStorageContainer,
     createBlob,
     sendEmail
 } = require('../shared/lib')
@@ -32,18 +27,18 @@ const main = (context, podcastRssItem) => {
     if(!context) context = {log: (message) => {console.log(message)}}
     const storageAccountName = getStorageAccountName()
     const storageAccountKey =  getStorageAccountKey()
-    createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, storageAccountName, storageAccountKey, context)
+    createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     .then(() => {
         let query = new azureStorage.TableQuery()
             .top(1)
             .where('PartitionKey eq ?', podcastRssItem.audioId);
-        return queryTable(query, PODCAST_PROCESS_REGISTER_TABLE_NAME, storageAccountName, storageAccountKey, context)
+        return queryTable(query, PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     })
     .then((queryResult) =>{
         return processQueryResult(queryResult, podcastRssItem, context)
     })
     .then((emailResult) => {
-        return createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, storageAccountName, storageAccountKey, context)
+        return createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
         .then(() => {
             const tableEntity = {
                 PartitionKey: podcastRssItem.audioId,

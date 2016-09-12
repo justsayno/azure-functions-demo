@@ -5,8 +5,6 @@ const {
     createBlobTable, 
     createQueue, 
     addItemToQueue,
-    getStorageAccountName,
-    getStorageAccountKey,
     queryTable,
     insertPodcastEntity
 } = require('../shared/lib')
@@ -26,33 +24,27 @@ const insertRssItemIntoTableStorage = (rssItem, tableName) => {
         partitionKey: audioId,
         rowKey: audioId
     }
-    return insertPodcastEntity(entity, tableName, storageAccountName, storageAccountKey)
+    return insertPodcastEntity(entity, tableName)
 }
 
-const addItemToProcessingRegister = (podcastRssItem, storageAccountName, storageAccountKey, context) =>{
-    return createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, storageAccountName, storageAccountKey, context)
+const addItemToProcessingRegister = (podcastRssItem, context) =>{
+    return createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     .then(() =>{
         return insertPodcastEntity(podcastRssItem, PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     })
 }
 
-const processPodcastQueryResult = (
-    queryResult,
-    queueItem,
-    storageAccountName, 
-    storageAccountKey, 
-    context
-) => {
+const processPodcastQueryResult = (queryResult, queueItem, context) => {
     if(queryResult.entries.length <= 0){
-        return addItemToProcessingRegister(queueItem, storageAccountName, storageAccountKey, context)
+        return addItemToProcessingRegister(queueItem, context)
         .then(() => {
-            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, storageAccountName, storageAccountKey, context)    
+            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })
     }
     else if(queryResult.entries[0].notificationSent._ === false){
-        return createQueue(PODCAST_NOTIFICATION_QUEUE_NAME, storageAccountName, storageAccountKey, context)
+        return createQueue(PODCAST_NOTIFICATION_QUEUE_NAME, context)
         .then(() => {
-            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, storageAccountName, storageAccountKey, context)    
+            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })  
     }
     else{
@@ -61,18 +53,15 @@ const processPodcastQueryResult = (
 }
 
 main = function (context, podcastRssItem) {
-    if(!context) context = {log: (message) => {console.log(message)}}
-    const storageAccountName = getStorageAccountName()
-    const storageAccountKey =  getStorageAccountKey()
-    createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, storageAccountName, storageAccountKey, context)
+    createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     .then(() => {
         let query = new azureStorage.TableQuery()
             .top(1)
             .where('PartitionKey eq ?', podcastRssItem.audioId);
-        return queryTable(query, PODCAST_PROCESS_REGISTER_TABLE_NAME, storageAccountName, storageAccountKey, context)
+        return queryTable(query, PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     })
     .then((queryResult) => {
-        return processPodcastQueryResult(queryResult, podcastRssItem, storageAccountName, storageAccountKey, context)
+        return processPodcastQueryResult(queryResult, podcastRssItem, context)
     })
     .then(() => {
         context.log('Node.js queue trigger function processed work item', JSON.stringify(podcastRssItem));

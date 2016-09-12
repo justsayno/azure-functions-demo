@@ -4,9 +4,7 @@ const url = require('url');
 const { 
     createBlobTable, 
     createQueue, 
-    addItemToQueue,
-    getStorageAccountName,
-    getStorageAccountKey 
+    addItemToQueue
 } = require('../shared/lib')
 
 const { PROCESS_PODCAST_QUEUE_NAME } = require('../shared/constants')
@@ -34,8 +32,7 @@ const getLatestRssItemsFromArray = (rssItems, totalCount) => {
 }
 
 const main = (context) => {
-    if(context == null) context = {log: (message) => { console.log(message)}}
-    return createQueue(PROCESS_PODCAST_QUEUE_NAME, getStorageAccountName(), getStorageAccountKey(), context)
+    return createQueue(PROCESS_PODCAST_QUEUE_NAME, context)
     .then(() => { 
       return getRssItems(context)
     })
@@ -46,7 +43,7 @@ const main = (context) => {
             const urlObject = url.parse(item.link)
             const audioId = urlObject.path.slice(32 + 'audio/'.length, urlObject.path.lastIndexOf('/'))
             item.audioId = audioId
-            return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
+            return addItemToQueue(item, 'podcasts-to-process', context)         
         })
         return Promise.all(queuePromises)       
     })
