@@ -3,15 +3,20 @@ const azureStorage = require('azure-storage')
 let tableService
 let queueServce
 
-const STORAGE_ACCOUNT_NAME_APP_SETTING = 'STORAGE_ACCOUNT_NAME'
-const STORAGE_ACCOUNT_KEY_APP_SETTING = 'STORAGE_ACCOUNT_KEY'
+const STORAGE_ACCOUNT_NAME_APP_SETTING = 'AZURE_STORAGE_ACCOUNT'
+const STORAGE_ACCOUNT_KEY_APP_SETTING = 'AZURE_STORAGE_ACCESS_KEY'
+
+function GetEnvironmentVariable(name)
+{
+    return process.env[name];
+}
 
 const getStorageAccountName = () =>{
-    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME)
+    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME_APP_SETTING)
 }
 
 const getStorageAccountKey = () =>{
-    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME_APP_SETTING)
+    return GetEnvironmentVariable(STORAGE_ACCOUNT_KEY_APP_SETTING)
 }
 
 const initializeEnvironment = (storageAccountName, storageAccountKey) =>{
@@ -81,7 +86,7 @@ const createQueue = (queueName, storageAccountName, storageAccountKey, context) 
         initializeEnvironment(storageAccountName, storageAccountKey) 
         queueServce.createQueueIfNotExists(queueName, (error, result, response) =>{
             if (!error) {
-                 context.log(`Created queue '${queueName}'`)
+                context.log(`Created queue '${queueName}'`)
                 resolve(result)
             }
             else{
@@ -101,14 +106,14 @@ const createQueues = (queueNames, storageAccountName, storageAccountKey) => {
     return Promise.all(queuePromises)
 }
 
-const addItemToQueue = (item, queueName, storageAccountName, storageAccountKey) => {
+const addItemToQueue = (item, queueName, storageAccountName, storageAccountKey, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`Creating queue item '${item}'' '${queueNames}'`)
+        context.log(`Creating queue item '${item}'' '${queueName}'`)
         initializeEnvironment(storageAccountName, storageAccountKey) 
         queueServce.createMessage(queueName, JSON.stringify(item), (error, result, response) => {
             if(!error){
-                context.log(`Created queue item '${item}'' '${queueNames}'`)
-                resolve(data)
+                context.log(`Created queue item '${item}'' '${queueName}'`)
+                resolve(result)
             }else{
                 context.log(error)
                 reject(error)

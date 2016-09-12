@@ -27,19 +27,24 @@ const getRssItems = (context) => {
     })
 }
 
-module.exports = (context) => {
+const main = (context) => {
+    if(context == null) context = {log: (message) => { console.log(message)}}
     return createQueue(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey(), context)
     .then(() => { 
       return getRssItems(context)
     })
     .then((rssItems) => {
         const queuePromises = rssItems.map((item) => {
-            return addItemToQueue(item, 'podcasts-to-process')         
+            return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
         })
-        return Promise.all(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey(), context)       
+        return Promise.all(queuePromises)       
     })
     .then(() => {
         context.log('Scanning complete')
         context.done()
     })
 }
+
+main()
+
+module.exports = main
