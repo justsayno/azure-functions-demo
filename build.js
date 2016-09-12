@@ -1,3 +1,18 @@
+var npm = require('npm')
+
+if (!which('npm')) {
+  echo('Sorry, this script requires npm')
+  exit(1)
+}
+
+npm.load(myConfigObject, function (er) {
+  if (er) return handlError(er)
+  npm.commands.install([], function (er, data) {
+    if (er) return commandFailed(er)
+    // command succeeded, and data might have some info
+  })
+})
+
 require('shelljs/global');
 const fs = require('fs');
 const path = require('path');
@@ -17,12 +32,9 @@ getDirectories = (directoryPath) => {
   });
 }
 
-if (!which('npm')) {
-  echo('Sorry, this script requires npm')
-  exit(1)
-}
-
 const directories = getDirectories(scriptDirectory)
+
+installPackagesInDirectory(scriptDirectory)
 
 directories.map((directory) => {
     installPackagesInDirectory(directory, scriptDirectory)
