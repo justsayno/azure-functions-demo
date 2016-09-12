@@ -225,8 +225,14 @@ const sendEmail = (rssFeedUrl, context) => {
             body: mail.toJSON(),
         });
         sendgrid.API(request, function(error, response) {
-            context.log('Finished sending email')
-            resolve(response)
+            if (!error) {
+                context.log('Finished sending email')
+                resolve(result)
+            }
+            else{
+                context.log(error)
+                reject(error)
+            }
         });
     });
 }

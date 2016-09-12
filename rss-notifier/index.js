@@ -24,7 +24,6 @@ const processQueryResult = (queryResult, podcastRssItem, context) => {
     }
     else if(queryResult.entries[0].notificationSent._ === false){
         // if notifcation has not been sent
-        let fileName = `./.temp/testFile`
         return sendEmail(podcastRssItem.link, context)
     }
     else {
@@ -34,6 +33,7 @@ const processQueryResult = (queryResult, podcastRssItem, context) => {
 }
 
 const main = (context, podcastRssItem) => {
+    context.log('Podcast item recieved on queue')
     createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     .then(() => {
         let query = new azureStorage.TableQuery()
@@ -55,7 +55,31 @@ const main = (context, podcastRssItem) => {
             }
             return updatePodcastEntity(tableEntity, PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
         })
+    }, (error) =>{
+        const tableEntity = {
+            PartitionKey: podcastRssItem.audioId,
+            RowKey: podcastRssItem.audioId,
+            url: podcastRssItem.url,
+            notificationSent: false
+        }
+        return updatePodcastEntity(tableEntity, PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
+    })
+    .then(() => {
+        context.done()
     })
 }
+
+var rssItem = {"title":"Matt Chatterton talks sport with Checkpoint","content":"RNZ sports reporter Matt Chatterton joins Checkpoint to discuss the latest sports news, including Sophie Pascoe's eighth gold, the US Open men's final and the All Blacks win at the weekend.\r\n","published":"2016-09-12T06:21:00.000Z","author":"","link":"http://www.radionz.co.nz/national/programmes/checkpoint/audio/201815845/matt-chatterton-talks-sport-with-checkpoint","feed":{"source":"http://www.radionz.co.nz/podcasts/checkpoint.rss","link":"http://www.radionz.co.nz/national/programmes/checkpoint","name":"RNZ: Checkpoint"},"audioId":"201815846"}
+
+const context = {
+    log: (message) => {
+        console.log(message)
+    },
+    done: () => {
+
+    }
+}
+
+main(context, rssItem)
 
 module.exports = main
