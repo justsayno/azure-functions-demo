@@ -29,12 +29,8 @@ const main = () => {
     })
     .then(() => {
         console.log('Scanning complete')
-        //context.done()
+        context.done()
     })
 }
-
-main().then(() => {
-    console.log('complete')
-})
 
 module.exports = main
