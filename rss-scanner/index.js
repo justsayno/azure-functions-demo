@@ -38,6 +38,7 @@ const main = (context) => {
     })
     .then((rssItems) => {
         const latestRssItems = getLatestRssItemsFromArray(rssItems, 5)
+        context.log(`Latest RSS Items: /n ${latestRssItems}`)
         context.log(`latest RSS item count ${latestRssItems.length}`)
         const queuePromises = latestRssItems.map((item) => {
             const urlObject = url.parse(item.link)
