@@ -8,5 +8,5 @@
       "connection": "AzureWebJobsDashboard"
     }
   ],
-  "disabled": false
+  "disabled": true
 }
