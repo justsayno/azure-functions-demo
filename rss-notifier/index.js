@@ -24,9 +24,6 @@ const processQueryResult = (queryResult, podcastRssItem, context) => {
 }
 
 const main = (context, podcastRssItem) => {
-    if(!context) context = {log: (message) => {console.log(message)}}
-    const storageAccountName = getStorageAccountName()
-    const storageAccountKey =  getStorageAccountKey()
     createBlobTable(PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     .then(() => {
         let query = new azureStorage.TableQuery()
