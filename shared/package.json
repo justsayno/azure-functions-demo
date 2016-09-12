@@ -1,0 +1,15 @@
+{
+  "name": "azure-functions-shared",
+  "version": "1.0.0",
+  "description": "",
+  "main": "lib.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "azure-queue-node": "^1.1.0",
+    "azure-storage": "^1.3.0"
+  }
+}
