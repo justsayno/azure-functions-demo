@@ -109,8 +109,9 @@ const createQueues = (queueNames, storageAccountName, storageAccountKey) => {
 const addItemToQueue = (item, queueName, storageAccountName, storageAccountKey, context) => {
     return new Promise((resolve, reject) => {
         context.log(`Creating queue item '${item}'' '${queueName}'`)
-        initializeEnvironment(storageAccountName, storageAccountKey) 
-        queueServce.createMessage(queueName, JSON.stringify(item), (error, result, response) => {
+        initializeEnvironment(storageAccountName, storageAccountKey)
+        var serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
+        queueServce.createMessage(queueName, serializedMessage, (error, result, response) => {
             if(!error){
                 context.log(`Created queue item '${item}'' '${queueName}'`)
                 resolve(result)

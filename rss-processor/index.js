@@ -9,6 +9,6 @@ const insertRssItemIntoTableStorage = (rssItem, tableName) => {
 }
 
 module.exports = function (context, myQueueItem) {
-    context.log('Node.js queue trigger function processed work item', myQueueItem);
+    context.log('Node.js queue trigger function processed work item', JSON.stringify(myQueueItem));
     context.done();
 };
