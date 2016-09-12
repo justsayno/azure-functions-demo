@@ -3,6 +3,17 @@ const azureStorage = require('azure-storage')
 let tableService
 let queueServce
 
+const STORAGE_ACCOUNT_NAME_APP_SETTING = 'STORAGE_ACCOUNT_NAME'
+const STORAGE_ACCOUNT_KEY_APP_SETTING = 'STORAGE_ACCOUNT_KEY'
+
+const getStorageAccountName = () =>{
+    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME)
+}
+
+const getStorageAccountKey = () =>{
+    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME_APP_SETTING)
+}
+
 const initializeEnvironment = (storageAccountName, storageAccountKey) =>{
     if(!tableService){
         tableService = azureStorage.createTableService(storageAccountName,storageAccountKey)
@@ -101,5 +112,7 @@ module.exports = {
     createBlobTable,
     queryTable,
     insertPodcastEntity,
-    addItemToQueue
+    addItemToQueue,
+    getStorageAccountName,
+    getStorageAccountKey
 }
