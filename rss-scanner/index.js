@@ -28,7 +28,7 @@ const getRssItems = (context) => {
     })
 }
 
-const main = (context) => {
+module.exports = (context) => {
     return createQueue(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey(), context)
     .then(() => { 
       return getRssItems(context)
@@ -44,5 +44,3 @@ const main = (context) => {
         context.done()
     })
 }
-
-module.exports = main
