@@ -8,8 +8,6 @@ const {
     getStorageAccountKey 
 } = require('../shared/lib')
 
-const STORAGE_ACCOUNT_KEY
-
 const blobTableName = 'processedpodcasts'
 const processPodcastQueueName = 'podcasts-to-process'
 

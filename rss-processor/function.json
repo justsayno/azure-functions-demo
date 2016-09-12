@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "queueName": "process-rss-feed",
+      "connection": "MyServiceBusConnection",
+      "name": "rssProcessor",
+      "type": "serviceBusTrigger",
+      "direction": "in"
+    }
+  ],
+  "disabled": false
+}
