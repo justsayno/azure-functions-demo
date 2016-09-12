@@ -5,7 +5,8 @@ const {
     queryTable,
     updatePodcastEntity,
     createBlob,
-    sendEmail
+    sendEmail,
+    addItemToQueue
 } = require('../shared/lib')
 
 const { 
@@ -14,11 +15,20 @@ const {
 } = require('../shared/constants')
 
 const processQueryResult = (queryResult, podcastRssItem, context) => {
-    if(queryResult.entries[0].notificationSent._ === false){
-        let fileName = `./.temp/testFile`
-        return sendEmail(podcastRssItem.link)
+    if(queryResult.entries.length <= 0){
+        // if it was not found we need to send it to process queue
+        return addItemToProcessingRegister(queueItem, context)
+        .then(() => {
+            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
+        })
     }
-    else{
+    else if(queryResult.entries[0].notificationSent._ === false){
+        // if notifcation has not been sent
+        let fileName = `./.temp/testFile`
+        return sendEmail(podcastRssItem.link, context)
+    }
+    else {
+        context.log('Item does not need to be queued, or notification sent. Resolving.')
         return new Promise((resolve, reject) => { resolve() })
     }
 }

@@ -209,13 +209,14 @@ const createBlob = (filePath, blobName, containerName, context) => {
 /*
 * Email
 */
-const sendEmail = (url, dest) => {
+const sendEmail = (rssFeedUrl, context) => {
     return new Promise((resolve, reject) => {
+        context.log('Sending email')
         initializeEnvironment()
         var from_email = new helper.Email('contact@sethreid.co.nz');
         var to_email = new helper.Email('contact@sethreid.co.nz');
         var subject = 'New Checkpoint podcast!';
-        var content = new helper.Content('text/plain', `Hello, There is a new Checkpoint podcast that you can find here: ${url}!`);
+        var content = new helper.Content('text/plain', `Hello, There is a new Checkpoint podcast that you can find here: ${rssFeedUrl}!`);
         var mail = new helper.Mail(from_email, subject, to_email, content);
 
         var request = sendgrid.emptyRequest({
@@ -224,6 +225,7 @@ const sendEmail = (url, dest) => {
             body: mail.toJSON(),
         });
         sendgrid.API(request, function(error, response) {
+            context.log('Finished sending email')
             resolve(response)
         });
     });

@@ -36,12 +36,14 @@ const addItemToProcessingRegister = (podcastRssItem, context) =>{
 
 const processPodcastQueryResult = (queryResult, queueItem, context) => {
     if(queryResult.entries.length <= 0){
+         // if it was not found we need to send it to process queue
         return addItemToProcessingRegister(queueItem, context)
         .then(() => {
             return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })
     }
     else if(queryResult.entries[0].notificationSent._ === false){
+         // if it was found but notifcation has not been sent then add to notification queue
         return createQueue(PODCAST_NOTIFICATION_QUEUE_NAME, context)
         .then(() => {
             return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
