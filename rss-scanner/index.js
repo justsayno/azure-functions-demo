@@ -9,8 +9,7 @@ const {
     getStorageAccountKey 
 } = require('../shared/lib')
 
-const blobTableName = 'processedpodcasts'
-const processPodcastQueueName = 'podcasts-to-process'
+const { PROCESS_PODCAST_QUEUE_NAME } = require('../shared/constants')
 
 const getRssItems = (context) => {
     return new Promise((resolve, reject) => {
@@ -29,7 +28,7 @@ const getRssItems = (context) => {
 
 const main = (context) => {
     if(context == null) context = {log: (message) => { console.log(message)}}
-    return createQueue(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey(), context)
+    return createQueue(PROCESS_PODCAST_QUEUE_NAME, getStorageAccountName(), getStorageAccountKey(), context)
     .then(() => { 
       return getRssItems(context)
     })

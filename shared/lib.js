@@ -7,9 +7,14 @@ let queueSerivce
 let blobService
 let sendgrid
 
-const STORAGE_ACCOUNT_NAME_APP_SETTING = 'AZURE_STORAGE_ACCOUNT'
-const STORAGE_ACCOUNT_KEY_APP_SETTING = 'AZURE_STORAGE_ACCESS_KEY'
-const SENDGRID_API_KEY = 'SENDGRID_API_KEY'
+// App settings keys
+export const STORAGE_ACCOUNT_NAME_APP_SETTING = 'AZURE_STORAGE_ACCOUNT'
+export const STORAGE_ACCOUNT_KEY_APP_SETTING = 'AZURE_STORAGE_ACCESS_KEY'
+export const SENDGRID_API_KEY_APP_SETTING = 'SENDGRID_API_KEY'
+
+// azure storage resource names
+export const PROCESS_PODCAST_QUEUE_NAME = 'podcasts-to-process'
+
 
 function GetEnvironmentVariable(name)
 {
@@ -17,15 +22,15 @@ function GetEnvironmentVariable(name)
 }
 
 const getStorageAccountName = () =>{
-    return 'functionde0ef5979f96'
+    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME_APP_SETTING)
 }
 
 const getStorageAccountKey = () =>{
-    return 'Bsd37n2+CKBquoLkdLOrLA757gDC87KYJ/Meu0ygb5yjVZak8VKn8WA8eWehDTW4W0GCxgdr8tX1E/xggDg0UA=='
+    return GetEnvironmentVariable(STORAGE_ACCOUNT_KEY_APP_SETTING)
 }
 
 const getSendgridApiKey = () =>{
-    return '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'
+    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME_APP_SETTING)
 }
 
 const initializeEnvironment = () =>{
