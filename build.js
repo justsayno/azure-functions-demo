@@ -24,7 +24,6 @@ getDirectories = (directoryPath) => {
 }
 
 const directories = getDirectories(scriptDirectory)
-
 installPackagesInDirectory(scriptDirectory)
 
 directories.map((directory) => {
