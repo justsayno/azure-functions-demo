@@ -16,14 +16,14 @@ const {
 
 const processQueryResult = (queryResult, podcastRssItem, context) => {
     if(queryResult.entries.length <= 0){
-        // if it was not found we need to send it to process queue
+        context.log('Podcast item to found in process table. Adding to table.')
         return addItemToProcessingRegister(queueItem, context)
         .then(() => {
             return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })
     }
     else if(queryResult.entries[0].notificationSent._ === false){
-        // if notifcation has not been sent
+        context.log('Notifcation has not been sent. Sending.')
         return sendEmail(podcastRssItem.link, context)
     }
     else {
@@ -66,9 +66,11 @@ const main = (context, podcastRssItem) => {
     })
     .then((entity) => {
         if(entity.notificationSent){
+            context.log(`Notification successfully sent for item /n ${entity}`)
             context.done()
         }
         else{
+            context.log(`Notification failed to send sent for item /n ${entity}`)
             throw new Error('Notifcation was not successfully sent')
         }
     })
