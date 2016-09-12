@@ -36,7 +36,7 @@ const processPodcastQueryResult = (queryResult, queueItem, context) => {
          // if it was not found we need to send it to process queue
         return addItemToProcessingRegister(queueItem, context)
         .then(() => {
-            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
+            return addItemToQueue(queueItem, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })
     }
     else if(queryResult.entries[0].notificationSent._ === false){
