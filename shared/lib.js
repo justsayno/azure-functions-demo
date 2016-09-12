@@ -82,19 +82,21 @@ const createQueues = (queueNames, context) => {
 }
 
 const addItemToQueue = (item, queueName, context) => {
-    return new Promise((resolve, reject) => {
-        context.log(`Creating queue item '${JSON.stringify(item)}'' '${queueName}'`)
-        initializeEnvironment()
-        const serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
-        queueSerivce.createMessage(queueName, serializedMessage, (error, result, response) => {
-            if(!error){
-                context.log(`Created queue item '${JSON.stringify(item)}'' '${queueName}'`)
-                resolve(result)
-            }else{
-                context.log(`Failed to create queue item '${JSON.stringify(item)}'' '${queueName}'`)
-                context.log(error)
-                reject(error)
-            }
+    createQueue(queueName, context).then(() => {
+        return new Promise((resolve, reject) => {
+            context.log(`Creating queue item '${JSON.stringify(item)}'' '${queueName}'`)
+            initializeEnvironment()
+            const serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
+            queueSerivce.createMessage(queueName, serializedMessage, (error, result, response) => {
+                if(!error){
+                    context.log(`Created queue item '${JSON.stringify(item)}'' '${queueName}'`)
+                    resolve(result)
+                }else{
+                    context.log(`Failed to create queue item '${JSON.stringify(item)}'' '${queueName}'`)
+                    context.log(error)
+                    reject(error)
+                }
+            })
         })
     })
 }
