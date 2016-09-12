@@ -64,6 +64,7 @@ const createQueue = (queueName, context) => {
                 resolve(result)
             }
             else{
+                context.log(`Failed to create queue '${queueName}'`)
                 context.log(error)
                 reject(error)
             }
@@ -82,14 +83,15 @@ const createQueues = (queueNames, context) => {
 
 const addItemToQueue = (item, queueName, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`Creating queue item '${item}'' '${queueName}'`)
+        context.log(`Creating queue item '${JSON.stringify(item)}'' '${queueName}'`)
         initializeEnvironment()
         const serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
         queueSerivce.createMessage(queueName, serializedMessage, (error, result, response) => {
             if(!error){
-                context.log(`Created queue item '${item}'' '${queueName}'`)
+                context.log(`Created queue item '${JSON.stringify(item)}'' '${queueName}'`)
                 resolve(result)
             }else{
+                context.log(`Failed to create queue item '${JSON.stringify(item)}'' '${queueName}'`)
                 context.log(error)
                 reject(error)
             }
@@ -102,14 +104,15 @@ const addItemToQueue = (item, queueName, context) => {
 */
 const createBlobTable = (tableName, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`Begin creating blob if doesn't exist '${tableName}'`)
+        context.log(`Begin creating blob table if doesn't exist '${tableName}'`)
         initializeEnvironment()
         tableService.createTableIfNotExists(tableName, (error, result, response) => {
             if (!error) {
-                context.log(`Finsihed creating blob if doesn't exist'${tableName}'`)
+                context.log(`Finsihed creating blob table if doesn't exist'${tableName}'`)
                 resolve()
             }
             else{
+                context.log(`Failed to create blob table t'${tableName}'`)
                 reject(error)
             }
         })
@@ -118,13 +121,16 @@ const createBlobTable = (tableName, context) => {
 
 const queryTable = (query, tableName, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`queries table. Query: ${query} Table: '${tableName}'`)
+        context.log(`Querying table. Query: ${query} Table: '${tableName}'`)
         initializeEnvironment()
         tableService.queryEntities(tableName, query, null, function(error, result, response) {
             if (!error) {
+                context.log(`Successfully queries table. Query: ${query} Table: '${tableName}'`)
                 resolve(result)
             }
             else{
+                context.log(`Failed to query table. Query: ${query} Table: '${tableName}'`)
+                context.log(error)
                 reject(error)
             }
         })
@@ -147,6 +153,7 @@ const insertPodcastEntity = (podcastRssItem, tableName, context) => {
                 resolve(result)
             }
             else{
+                context.log(`Failed to insert podcast entitity ${podcastRssItem} into table '${tableName}'`)
                 context.log(error)
                 reject(error)
             }
@@ -158,10 +165,11 @@ const updatePodcastEntity = (entity, tableName, context) => {
     return new Promise((resolve, reject) => {
         tableService.replaceEntity(tableName, entity, function(error, result, response){
             if (!error) {
-                context.log(`Updated podcast entitity ${entity} Inserted table '${tableName}'`)
+                context.log(`Updated podcast entitity ${entity} in table '${tableName}'`)
                 resolve(entity)
             }
             else{
+                context.log(`Failed to update podcast entitity ${entity} in table '${tableName}'`)
                 context.log(error)
                 reject(entity)
             }
@@ -182,6 +190,7 @@ const createStorageContainer = (containerName, context) => {
                 resolve(result)
             }
             else{
+                context.log(`Failed to create container '${containerName}'`)
                 context.log(error)
                 reject(error)
             }
@@ -198,6 +207,7 @@ const createBlob = (filePath, blobName, containerName, context) => {
                 resolve(result)
             }
             else{
+                context.log(`Failed to create blob '${blobName}' in container '${containerName}''`)
                 context.log(error)
                 reject(error)
             }
@@ -226,10 +236,11 @@ const sendEmail = (rssFeedUrl, context) => {
         });
         sendgrid.API(request, function(error, response) {
             if (!error) {
-                context.log('Finished sending email')
+                context.log('Sucesfully sent email')
                 resolve(result)
             }
             else{
+                context.log('Failed to send email')
                 context.log(error)
                 reject(error)
             }
