@@ -1,0 +1,12 @@
+{
+  "bindings": [
+    {
+      "name": "rssNotifier",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "podcasts-to-notify",
+      "connection": "AzureWebJobsDashboard"
+    }
+  ],
+  "disabled": false
+}

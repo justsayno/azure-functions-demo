@@ -35,6 +35,7 @@ const main = (context) => {
     })
     .then((rssItems) => {
         const queuePromises = rssItems.map((item) => {
+            const urlObject = url.parse(item.link)
             const audioId = urlObject.path.slice(32 + 'audio/'.length, urlObject.path.lastIndexOf('/'))
             item.audioId = audioId
             return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
@@ -46,7 +47,5 @@ const main = (context) => {
         context.done()
     })
 }
-
-main()
 
 module.exports = main

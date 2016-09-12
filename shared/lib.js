@@ -1,37 +1,74 @@
 const azureStorage = require('azure-storage')
+const sbuff = require('simple-bufferstream')
+const helper = require('sendgrid').mail;
 
 let tableService
-let queueServce
+let queueSerivce
+let blobService
+let sendgrid
 
 const STORAGE_ACCOUNT_NAME_APP_SETTING = 'AZURE_STORAGE_ACCOUNT'
 const STORAGE_ACCOUNT_KEY_APP_SETTING = 'AZURE_STORAGE_ACCESS_KEY'
+const SENDGRID_API_KEY = 'SENDGRID_API_KEY'
 
 function GetEnvironmentVariable(name)
 {
-    return process.env[name];
+    return process.env[name]
 }
 
 const getStorageAccountName = () =>{
-    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME_APP_SETTING)
+    return 'functionde0ef5979f96'
 }
 
 const getStorageAccountKey = () =>{
-    return GetEnvironmentVariable(STORAGE_ACCOUNT_KEY_APP_SETTING)
+    return 'Bsd37n2+CKBquoLkdLOrLA757gDC87KYJ/Meu0ygb5yjVZak8VKn8WA8eWehDTW4W0GCxgdr8tX1E/xggDg0UA=='
 }
 
-const initializeEnvironment = (storageAccountName, storageAccountKey) =>{
+const getSendgridApiKey = () =>{
+    return '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'
+}
+
+const initializeEnvironment = () =>{
+    const storageAccountName = getStorageAccountName()
+    const storageAccountKey =  getStorageAccountKey()
     if(!tableService){
         tableService = azureStorage.createTableService(storageAccountName,storageAccountKey)
     }
-    if(!queueServce){
-        queueServce = azureStorage.createQueueService(storageAccountName, storageAccountKey)
+    if(!queueSerivce){
+        queueSerivce = azureStorage.createQueueService(storageAccountName, storageAccountKey)
+    }
+    if(!blobService){
+        blobService = azureStorage.createBlobService(storageAccountName, storageAccountKey)
+    }
+    if(!sendgrid){
+        sendgrid = require('sendgrid')(getSendgridApiKey());
     }
 }
 
-const createBlobTable = (tableName, storageAccountName, storageAccountKey, context) => {
-    context.log(`Creating blob table '${tableName}'`)
-    initializeEnvironment(storageAccountName, storageAccountKey)
+const sendEmail = (url, dest) => {
     return new Promise((resolve, reject) => {
+        initializeEnvironment()
+        var from_email = new helper.Email('contact@sethreid.co.nz');
+        var to_email = new helper.Email('contact@sethreid.co.nz');
+        var subject = 'New Checkpoint podcast!';
+        var content = new helper.Content('text/plain', `Hello, There is a new Checkpoint podcast that you can find here: ${url}!`);
+        var mail = new helper.Mail(from_email, subject, to_email, content);
+
+        var request = sendgrid.emptyRequest({
+            method: 'POST',
+            path: '/v3/mail/send',
+            body: mail.toJSON(),
+        });
+        sendgrid.API(request, function(error, response) {
+            resolve(response)
+        });
+    });
+}
+
+const createBlobTable = (tableName, storageAccountName, storageAccountKey, context) => {
+    return new Promise((resolve, reject) => {
+        context.log(`Creating blob table '${tableName}'`)
+        initializeEnvironment()
         tableService.createTableIfNotExists(tableName, (error, result, response) => {
             if (!error) {
                 context.log(`Azure blob table creates '${tableName}'`)
@@ -40,13 +77,13 @@ const createBlobTable = (tableName, storageAccountName, storageAccountKey, conte
             else{
                 reject(error)
             }
-        });
+        })
     })
 }
 
 const queryTable = (query, tableName, storageAccountName, storageAccountKey) => {
     return new Promise((resolve, reject) => {
-        initializeEnvironment(storageAccountName, storageAccountKey)
+        initializeEnvironment()
         tableService.queryEntities(tableName, query, null, function(error, result, response) {
             if (!error) {
                 resolve(result)
@@ -58,34 +95,49 @@ const queryTable = (query, tableName, storageAccountName, storageAccountKey) => 
     })
 }
 
-const insertPodcastEntity = (entity, tableName, storageAccountName, storageAccountKey, context) => {
+const insertPodcastEntity = (podcastRssItem, tableName, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`Inserting podcast entitity ${entity} into table '${tableName}'`)
-        const entGen = azureStorage.TableUtilities.entityGenerator;
+        context.log(`Inserting podcast entitity ${podcastRssItem} into table '${tableName}'`)
+        const entGen = azureStorage.TableUtilities.entityGenerator
         const tableEntity = {
-            PartitionKey: entGen.String(entity.partitionKey),
-            RowKey: entGen.String(entity.rowKey),
-            url: entGen.String(entity.url),
-            downloadComplete: entGen.Boolean(entity.downloadComplete)
-        };
+            PartitionKey: podcastRssItem.audioId,
+            RowKey: podcastRssItem.audioId,
+            url: podcastRssItem.partitionKey,
+            notificationSent: false
+        }
         tableService.insertEntity(tableName, tableEntity, (error, result, response) => {
             if (!error) {
-                context.log(`Inserted podcast entitity ${entity} into table '${tableName}'`)
+                context.log(`Inserted podcast entitity ${podcastRssItem} into table '${tableName}'`)
                 resolve(result)
             }
             else{
                 context.log(error)
                 reject(error)
             }
+        })
     })
+}
+
+const updatePodcastEntity = (entity, tableName, context) => {
+    return new Promise((resolve, reject) => {
+        tableService.replaceEntity(tableName, entity, function(error, result, response){
+            if (!error) {
+                context.log(`Updated podcast entitity ${entity} Inserted table '${tableName}'`)
+                resolve(result)
+            }
+            else{
+                context.log(error)
+                reject(error)
+            }
+        })
     })
 }
 
 const createQueue = (queueName, storageAccountName, storageAccountKey, context) => {
     return new Promise((resolve, reject) => {
         context.log(`Creating queue '${queueName}'`)
-        initializeEnvironment(storageAccountName, storageAccountKey) 
-        queueServce.createQueueIfNotExists(queueName, (error, result, response) =>{
+        initializeEnvironment() 
+        queueSerivce.createQueueIfNotExists(queueName, (error, result, response) =>{
             if (!error) {
                 context.log(`Created queue '${queueName}'`)
                 resolve(result)
@@ -95,6 +147,38 @@ const createQueue = (queueName, storageAccountName, storageAccountKey, context) 
                 reject(error)
             }
         })
+    })
+}
+
+const createStorageContainer = (containerName, storageAccountName, storageAccountKey, context) => {
+    return new Promise((resolve, reject) => {
+        initializeEnvironment() 
+        blobService.createContainerIfNotExists(containerName, function(error, result, response){
+            if (!error) {
+                context.log(`Created container '${containerName}'`)
+                resolve(result)
+            }
+            else{
+                context.log(error)
+                reject(error)
+            }
+        })
+    })
+}
+
+const createBlob = (filePath, blobName, containerName, storageAccountName, storageAccountKey, context) => {
+    return new Promise((resolve, reject) => {
+        const stream = sbuff(buffer)
+        blobService.createBlockBlobFromFile(containerName, blobName, filePath, function(error, result, response){
+            if (!error) {
+                context.log(`Created blob '${blobName}' in container '${containerName}''`)
+                resolve(result)
+            }
+            else{
+                context.log(error)
+                reject(error)
+            }
+        });
     })
 }
 
@@ -110,9 +194,9 @@ const createQueues = (queueNames, storageAccountName, storageAccountKey) => {
 const addItemToQueue = (item, queueName, storageAccountName, storageAccountKey, context) => {
     return new Promise((resolve, reject) => {
         context.log(`Creating queue item '${item}'' '${queueName}'`)
-        initializeEnvironment(storageAccountName, storageAccountKey)
-        var serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
-        queueServce.createMessage(queueName, serializedMessage, (error, result, response) => {
+        initializeEnvironment()
+        const serializedMessage = new Buffer(JSON.stringify(item)).toString("base64")
+        queueSerivce.createMessage(queueName, serializedMessage, (error, result, response) => {
             if(!error){
                 context.log(`Created queue item '${item}'' '${queueName}'`)
                 resolve(result)
@@ -132,5 +216,9 @@ module.exports = {
     insertPodcastEntity,
     addItemToQueue,
     getStorageAccountName,
-    getStorageAccountKey
+    getStorageAccountKey,
+    createStorageContainer,
+    createBlob,
+    sendEmail,
+    updatePodcastEntity
 }
