@@ -159,11 +159,11 @@ const updatePodcastEntity = (entity, tableName, context) => {
         tableService.replaceEntity(tableName, entity, function(error, result, response){
             if (!error) {
                 context.log(`Updated podcast entitity ${entity} Inserted table '${tableName}'`)
-                resolve(result)
+                resolve(entity)
             }
             else{
                 context.log(error)
-                reject(error)
+                reject(entity)
             }
         })
     })

@@ -64,8 +64,13 @@ const main = (context, podcastRssItem) => {
         }
         return updatePodcastEntity(tableEntity, PODCAST_PROCESS_REGISTER_TABLE_NAME, context)
     })
-    .then(() => {
-        context.done()
+    .then((entity) => {
+        if(entity.notificationSent){
+            context.done()
+        }
+        else{
+            throw new Error('Notifcation was not successfully sent')
+        }
     })
 }
 
