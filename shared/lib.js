@@ -30,7 +30,7 @@ const getStorageAccountKey = () =>{
 }
 
 const getSendgridApiKey = () =>{
-    return GetEnvironmentVariable(STORAGE_ACCOUNT_NAME_APP_SETTING)
+    return GetEnvironmentVariable(SENDGRID_API_KEY_APP_SETTING)
 }
 
 const initializeEnvironment = () =>{
