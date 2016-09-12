@@ -1,11 +1,11 @@
 {
   "bindings": [
     {
-      "queueName": "process-rss-feed",
-      "connection": "MyServiceBusConnection",
-      "name": "rssProcessor",
-      "type": "serviceBusTrigger",
-      "direction": "in"
+      "name": "processPodcasts",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "podcasts-to-process",
+      "connection": "AzureWebJobsDashboard"
     }
   ],
   "disabled": false

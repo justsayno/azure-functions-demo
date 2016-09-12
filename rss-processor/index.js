@@ -8,7 +8,7 @@ const insertRssItemIntoTableStorage = (rssItem, tableName) => {
     return insertPodcastEntity(entity, tableName, storageAccountName, storageAccountKey)
 }
 
-module.exports = function(context, myQueueItem) {
-    context.log('Node.js ServiceBus queue trigger function processed message', myQueueItem);
+module.exports = function (context, myQueueItem) {
+    context.log('Node.js queue trigger function processed work item', myQueueItem);
     context.done();
 };
