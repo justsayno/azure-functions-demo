@@ -46,9 +46,7 @@ const main = (context) => {
             const urlObject = url.parse(item.link)
             const audioId = urlObject.path.slice(32 + 'audio/'.length, urlObject.path.lastIndexOf('/'))
             item.audioId = audioId
-            if(count <= 5){
-                return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
-            }
+            return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
         })
         return Promise.all(queuePromises)       
     })
