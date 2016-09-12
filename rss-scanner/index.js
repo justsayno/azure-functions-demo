@@ -13,26 +13,34 @@ const STORAGE_ACCOUNT_KEY
 const blobTableName = 'processedpodcasts'
 const processPodcastQueueName = 'podcasts-to-process'
 
-const getRssItems = () => {
+const getRssItems = (context) => {
     return new Promise((resolve, reject) => {
-        feed("http://www.radionz.co.nz/podcasts/checkpoint.rss", function(err, articles) {
-            if (err) throw err
-            resolve(articles)
+        context.log('getting rss items')
+        feed("http://www.radionz.co.nz/podcasts/checkpoint.rss", function(error, articles) {
+            if (!error) {
+                context.log('Got RSS items')
+                resolve(articles)
+            }else{
+                context.log(error)
+                reject(error)
+            }
         })
     })
 }
 
 const main = (context) => {
-    return createQueue(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey())
-    .then(getRssItems)
+    return createQueue(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey(), context)
+    .then(() => { 
+      return getRssItems(context)
+    })
     .then((rssItems) => {
         const queuePromises = rssItems.map((item) => {
             return addItemToQueue(item, 'podcasts-to-process')         
         })
-        return Promise.all(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey())       
+        return Promise.all(processPodcastQueueName, getStorageAccountName(), getStorageAccountKey(), context)       
     })
     .then(() => {
-        console.log('Scanning complete')
+        context.log('Scanning complete')
         context.done()
     })
 }
