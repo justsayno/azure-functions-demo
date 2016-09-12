@@ -1,5 +1,4 @@
 {
-  "disabled": false,
   "bindings": [
     {
       "name": "rssProcessor",
@@ -7,5 +6,6 @@
       "direction": "in",
       "schedule": "0 */60 * * * *"
     }
-  ]
+  ],
+  "disabled": true
 }
