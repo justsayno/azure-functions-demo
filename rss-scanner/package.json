@@ -1,0 +1,14 @@
+{
+  "name": "rss-processor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  },
+  "author": "Seth REid",
+  "license": "MIT",
+  "dependencies": {
+    "feedparser": "^1.1.4",
+    "node-fetch": "^1.6.0"
+  }
+}
