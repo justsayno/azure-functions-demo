@@ -47,9 +47,9 @@ const createBlobTable = (tableName, storageAccountName, storageAccountKey, conte
 const queryTable = (query, tableName, storageAccountName, storageAccountKey) => {
     return new Promise((resolve, reject) => {
         initializeEnvironment(storageAccountName, storageAccountKey)
-        tableService.queryEntities('mytable', query, null, function(error, result, response) {
+        tableService.queryEntities(tableName, query, null, function(error, result, response) {
             if (!error) {
-                resolve(response)
+                resolve(result)
             }
             else{
                 reject(error)
@@ -64,8 +64,9 @@ const insertPodcastEntity = (entity, tableName, storageAccountName, storageAccou
         const entGen = azureStorage.TableUtilities.entityGenerator;
         const tableEntity = {
             PartitionKey: entGen.String(entity.partitionKey),
-            RowKey: entGen.String(entity.rowKey)
-        
+            RowKey: entGen.String(entity.rowKey),
+            url: entGen.String(entity.url),
+            downloadComplete: entGen.Boolean(entity.downloadComplete)
         };
         tableService.insertEntity(tableName, tableEntity, (error, result, response) => {
             if (!error) {

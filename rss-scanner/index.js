@@ -35,6 +35,8 @@ const main = (context) => {
     })
     .then((rssItems) => {
         const queuePromises = rssItems.map((item) => {
+            const audioId = urlObject.path.slice(32 + 'audio/'.length, urlObject.path.lastIndexOf('/'))
+            item.audioId = audioId
             return addItemToQueue(item, 'podcasts-to-process', getStorageAccountName(), getStorageAccountKey(), context)         
         })
         return Promise.all(queuePromises)       
