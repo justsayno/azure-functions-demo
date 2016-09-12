@@ -16,7 +16,8 @@
     "url": "https://github.com/justsayno/azure-functions-demo/issues"
   },
   "homepage": "https://github.com/justsayno/azure-functions-demo#readme",
-  "dependencies": {
-    "node-cmd": "^1.1.1"
+  "dependencies": {},
+  "devDependencies": {
+    "shelljs": "^0.7.4"
   }
 }

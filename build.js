@@ -1,29 +1,29 @@
 require('shelljs/global');
 const fs = require('fs');
 const path = require('path');
+const scriptDirectory = __dirname
 
-const installPackagesInDirectory = (directoryPath) => {
-    if(`./${directoryPath}`)
+const installPackagesInDirectory = (directoryPath, scriptDirectory) => {
+    if (fs.existsSync(`./${directoryPath}/package.json`)) { 
+        cd(`./${directoryPath}`)
+        exec('npm install')
+        cd(scriptDirectory)
+    }
 }
 
 getDirectories = (directoryPath) => {
   return fs.readdirSync(directoryPath).filter(function(file) {
-    return fs.statSync(path.join(directoryPath, file)).isDirectory();
+    return fs.statSync(path.join(directoryPath, file)).isDirectory()
   });
 }
 
-
 if (!which('npm')) {
-  echo('Sorry, this script requires npm');
-  exit(1);
+  echo('Sorry, this script requires npm')
+  exit(1)
 }
 
-const directories = getDirectories("./")
+const directories = getDirectories(scriptDirectory)
 
 directories.map((directory) => {
-    console.log(directory)
+    installPackagesInDirectory(directory, scriptDirectory)
 })
-
-
-cd('./rss-scanner');
-exec('npm install')
