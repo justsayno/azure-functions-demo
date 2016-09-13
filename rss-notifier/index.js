@@ -17,7 +17,7 @@ const {
 const processQueryResult = (queryResult, podcastRssItem, context) => {
     if(queryResult.entries.length <= 0){
         context.log('Podcast item to found in process table. Adding to table.')
-        return addItemToProcessingRegister(queueItem, context)
+        return addItemToProcessingRegister(podcastRssItem, context)
         .then(() => {
             return addItemToQueue(podcastRssItem, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })
