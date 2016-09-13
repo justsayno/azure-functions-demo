@@ -141,7 +141,7 @@ const queryTable = (query, tableName, context) => {
 
 const insertPodcastEntity = (podcastRssItem, tableName, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`Inserting podcast entitity ${podcastRssItem} into table '${tableName}'`)
+        context.log(`Inserting podcast entitity ${JSON.stringify(podcastRssItem)} into table '${tableName}'`)
         const entGen = azureStorage.TableUtilities.entityGenerator
         const tableEntity = {
             PartitionKey: podcastRssItem.audioId,
@@ -151,11 +151,11 @@ const insertPodcastEntity = (podcastRssItem, tableName, context) => {
         }
         tableService.insertEntity(tableName, tableEntity, (error, result, response) => {
             if (!error) {
-                context.log(`Inserted podcast entitity ${podcastRssItem} into table '${tableName}'`)
+                context.log(`Inserted podcast entitity ${JSON.stringify(podcastRssItem)} into table '${tableName}'`)
                 resolve(result)
             }
             else{
-                context.log(`Failed to insert podcast entitity ${podcastRssItem} into table '${tableName}'`)
+                context.log(`Failed to insert podcast entitity ${JSON.stringify(podcastRssItem)} into table '${tableName}'`)
                 context.log(error)
                 reject(error)
             }
@@ -165,13 +165,14 @@ const insertPodcastEntity = (podcastRssItem, tableName, context) => {
 
 const updatePodcastEntity = (entity, tableName, context) => {
     return new Promise((resolve, reject) => {
+        context.log(`Updating podcast entitity ${JSON.stringify(entity)} in table '${tableName}'`)
         tableService.replaceEntity(tableName, entity, function(error, result, response){
             if (!error) {
-                context.log(`Updated podcast entitity ${entity} in table '${tableName}'`)
+                context.log(`Updated podcast entitity ${JSON.stringify(entity)} in table '${tableName}'`)
                 resolve(entity)
             }
             else{
-                context.log(`Failed to update podcast entitity ${entity} in table '${tableName}'`)
+                context.log(`Failed to update podcast entitity ${JSON.stringify(entity)} in table '${tableName}'`)
                 context.log(error)
                 reject(entity)
             }
