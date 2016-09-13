@@ -240,7 +240,7 @@ const sendEmail = (rssFeedUrl, context) => {
         sendgrid.API(request, function(error, response) {
             if (!error) {
                 context.log('Sucesfully sent email')
-                resolve(result)
+                resolve(response)
             }
             else{
                 context.log('Failed to send email')
