@@ -127,7 +127,7 @@ const queryTable = (query, tableName, context) => {
         initializeEnvironment()
         tableService.queryEntities(tableName, query, null, function(error, result, response) {
             if (!error) {
-                context.log(`Successfully queries table. Query: ${JSON.stringify(query)} Table: '${tableName}' /n result: ${JSON.stringify(result)}`)
+                context.log(`Successfully queried table. Query: ${JSON.stringify(query)} Table: '${tableName}' /n result: ${JSON.stringify(result)}`)
                 resolve(result)
             }
             else{

@@ -43,7 +43,7 @@ const processPodcastQueryResult = (queryResult, queueItem, context) => {
          // if it was found but notifcation has not been sent then add to notification queue
         return createQueue(PODCAST_NOTIFICATION_QUEUE_NAME, context)
         .then(() => {
-            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
+            return addItemToQueue(queueItem, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })  
     }
     else{
