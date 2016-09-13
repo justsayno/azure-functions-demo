@@ -123,15 +123,15 @@ const createBlobTable = (tableName, context) => {
 
 const queryTable = (query, tableName, context) => {
     return new Promise((resolve, reject) => {
-        context.log(`Querying table. Query: ${query} Table: '${tableName}'`)
+        context.log(`Querying table. Query: ${JSON.stringify(query)} Table: '${tableName}'`)
         initializeEnvironment()
         tableService.queryEntities(tableName, query, null, function(error, result, response) {
             if (!error) {
-                context.log(`Successfully queries table. Query: ${query} Table: '${tableName}'`)
+                context.log(`Successfully queries table. Query: ${JSON.stringify(query)} Table: '${tableName}' /n result: ${JSON.stringify(result)}`)
                 resolve(result)
             }
             else{
-                context.log(`Failed to query table. Query: ${query} Table: '${tableName}'`)
+                context.log(`Failed to query table. Query: ${JSON.stringify(query)} Table: '${tableName}'`)
                 context.log(error)
                 reject(error)
             }
