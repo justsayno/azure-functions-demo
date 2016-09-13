@@ -19,7 +19,7 @@ const processQueryResult = (queryResult, podcastRssItem, context) => {
         context.log('Podcast item to found in process table. Adding to table.')
         return addItemToProcessingRegister(queueItem, context)
         .then(() => {
-            return addItemToQueue(item, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
+            return addItemToQueue(podcastRssItem, PODCAST_NOTIFICATION_QUEUE_NAME, context)    
         })
     }
     else if(queryResult.entries[0].notificationSent._ === false){
@@ -76,17 +76,17 @@ const main = (context, podcastRssItem) => {
     })
 }
 
-// var rssItem = {"title":"Matt Chatterton talks sport with Checkpoint","content":"RNZ sports reporter Matt Chatterton joins Checkpoint to discuss the latest sports news, including Sophie Pascoe's eighth gold, the US Open men's final and the All Blacks win at the weekend.\r\n","published":"2016-09-12T06:21:00.000Z","author":"","link":"http://www.radionz.co.nz/national/programmes/checkpoint/audio/201815845/matt-chatterton-talks-sport-with-checkpoint","feed":{"source":"http://www.radionz.co.nz/podcasts/checkpoint.rss","link":"http://www.radionz.co.nz/national/programmes/checkpoint","name":"RNZ: Checkpoint"},"audioId":"201815846"}
+var rssItem = {"title":"Matt Chatterton talks sport with Checkpoint","content":"RNZ sports reporter Matt Chatterton joins Checkpoint to discuss the latest sports news, including Sophie Pascoe's eighth gold, the US Open men's final and the All Blacks win at the weekend.\r\n","published":"2016-09-12T06:21:00.000Z","author":"","link":"http://www.radionz.co.nz/national/programmes/checkpoint/audio/201815845/matt-chatterton-talks-sport-with-checkpoint","feed":{"source":"http://www.radionz.co.nz/podcasts/checkpoint.rss","link":"http://www.radionz.co.nz/national/programmes/checkpoint","name":"RNZ: Checkpoint"},"audioId":"201815846"}
 
-// const context = {
-//     log: (message) => {
-//         console.log(message)
-//     },
-//     done: () => {
+const context = {
+    log: (message) => {
+        console.log(message)
+    },
+    done: () => {
 
-//     }
-// }
+    }
+}
 
-// main(context, rssItem)
+main(context, rssItem)
 
 module.exports = main
